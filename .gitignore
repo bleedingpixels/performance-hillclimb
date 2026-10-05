@@ -1,0 +1,19 @@
+# Local configuration, credentials, and generated artifacts
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+.performance-hillclimb-install.json
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.jsonl
+*.log
+*.zip
+*.tar.gz
+backups/
+evidence/
+installation-report.md
+.DS_Store

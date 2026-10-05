@@ -1,0 +1,5 @@
+interface:
+  display_name: "Performance Hill Climb"
+  short_description: "Discover metrics and optimize with evidence"
+  default_prompt: "Use $performance-hillclimb to find meaningful metrics and iteratively optimize this project while preserving correctness."
+
