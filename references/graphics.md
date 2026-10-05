@@ -2,6 +2,8 @@
 
 Use this reference for rendering, XR, temporal aliasing, texture filtering, or a graphics optimization that changes fidelity. It turns the historical GearVR recipe supplied with the task into mechanisms to test. Its sample counts, old mobile-GPU defaults, shadow restrictions, and submission opinions are not current universal requirements. Primary API, renderer, and Unity documentation was checked on 2026-10-05; no headset measurements or rendering speedups were reproduced.
 
+For historical provenance, [Road to VR's July 2016 report](https://www.roadtovr.com/avoiding-anti-aliasing-virtual-reality-gear-vr-oculus-rift-john-carmack/) attributes the aliasing recipe to John Carmack's Facebook post. The original post was not independently retrieved. That coverage establishes context; the technical corrections below use primary documentation and author publications.
+
 ## Establish stable output before climbing
 
 Aliasing includes false spatial detail and flicker during motion. A band-limited signal needs a sampling rate greater than twice its highest frequency for exact reconstruction; discontinuities are not band limited. Increasing one kind of sample does not necessarily sample every shader, texture, geometry, and temporal signal adequately. Filter the relevant footprint and test the reconstructed result. [PBRT sampling theory](https://www.pbr-book.org/4ed/Sampling_and_Reconstruction/Sampling_Theory)

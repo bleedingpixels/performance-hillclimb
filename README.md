@@ -73,7 +73,7 @@ python3 -B -m unittest discover -s tests -v
 
 Tests cover first installation, repeated installation, relocation, paths with spaces, custom directories, local-edit preservation, conflicting paths, missing files, managed updates, and injected write/rollback failures. The installer does not guarantee recovery from power loss or hostile concurrent directory replacement.
 
-Use [the decision-support evaluation](tests/skill-evaluation.md) to compare guidance on fixed scenarios before accepting a research revision. It records the 2026-10-05 planning comparison, separate audio case, acceptance rubric, and proof limits. Installer success and planning scores do not establish an application's performance gain.
+Use [the decision-support evaluation](tests/skill-evaluation.md) to compare guidance on fixed scenarios before accepting a research revision. It records the 2026-10-05 general and graphics planning comparisons, separate audio case, acceptance rubric, and proof limits. Installer success and planning scores do not establish an application's performance or rendering-quality gain.
 
 Before publishing changes, inspect every tracked file and the complete commit history for secrets and identifying data. Keep installation receipts, generated benchmark evidence, local configuration, and session transcripts out of this repository.
 
