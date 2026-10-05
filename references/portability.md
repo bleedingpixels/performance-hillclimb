@@ -26,6 +26,8 @@ The installer uses Python 3.9 or newer and only its standard library, and makes 
 
 Repeat installation to update an unchanged managed copy. A conflict is a reason to inspect the destination, not to delete local work. A byte-identical unmanaged bundle may be adopted; a differing unmanaged directory is refused. `--check` and `--dry-run` perform no writes.
 
+The current bundle contains ten installed files, including the metric, tool, strategy, case-study, source, and portability references. The installer recognizes unchanged managed installations from the original seven-file version and safely upgrades them. Missing files, added user files, or edits that do not match the receipt are still refused. Unmanaged older partial copies are not automatically replaced.
+
 ## Custom roots and physical copies
 
 Install into another loader's documented skills root, or a project-local skills directory when project instructions call for one:

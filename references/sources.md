@@ -2,6 +2,8 @@
 
 Sources were checked on 2026-10-05. This skill generalizes their engineering method; it does not promise the same results, model capabilities, tools, or scale.
 
+The source base extends beyond the original article and critique. Read [case-studies.md](case-studies.md) for nine 2025-2026 open-source optimization reports, implementation anchors, measured tradeoffs, and reproducibility limits; read [tools.md](tools.md) for primary tool documentation. [strategies.md](strategies.md) turns those cases into project-specific experiments. None of the published benchmarks was reproduced to create this skill.
+
 ## Article
 
 [Anthropic's performance sprint](https://claude.dev/blog/how-we-made-claude-ai-faster/) describes discovering bottlenecks, building measurements, validating improvements, retaining regression guards, and using engineers to steer tradeoffs. Its speedup claim concerns selected app journeys at p75. It is not evidence for faster model inference, universal speedups, or autonomous change approval.
@@ -27,4 +29,3 @@ The adopted lesson is to measure correct outcomes alongside performance. Do not 
 | [DevTools begin-frame protocol](https://chromedevtools.github.io/devtools-protocol/tot/HeadlessExperimental/#method-beginFrame) and [rendering performance](https://web.dev/articles/rendering-performance) | Synthetic cadence is distinct from elapsed execution and physical display throughput. |
 
 Recheck source and documentation for the project's actual versions before applying implementation-sensitive behavior. Published success reports do not replace measurements in the selected checkout and environment.
-

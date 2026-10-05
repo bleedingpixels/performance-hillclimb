@@ -10,6 +10,10 @@ Adapt or remove fields that do not affect this decision. Fill absent evidence as
 - Current accepted baseline:
 - Runtime, flags, hardware/device, external dependencies:
 - Workloads, cohorts, arrival pattern/concurrency, cold/warm state:
+- Source lead and evidence type (report, release, current code, local replication):
+- Bottleneck model, critical-path share, and conditions that could falsify it:
+- Selected instrument/mode, artifact meaning, availability, and blind spots:
+- Startup/preprocessing/maintenance repayment and memory/quality tradeoffs:
 
 ## Measurement contract
 
@@ -54,4 +58,3 @@ Adapt or remove fields that do not affect this decision. Fill absent evidence as
 - Local proof; field/device evidence if available:
 - Status and remaining boundary:
 - Exact accepted source, artifact paths, and first resume action:
-

@@ -14,7 +14,7 @@ import tempfile
 
 NAME = "performance-hillclimb"
 RECEIPT = ".performance-hillclimb-install.json"
-FILES = (
+LEGACY_FILES = (
     "SKILL.md",
     "agents/openai.yaml",
     "assets/experiment-record.md",
@@ -23,7 +23,16 @@ FILES = (
     "references/portability.md",
     "scripts/install.py",
 )
-DIRECTORIES = {str(Path(name).parent) for name in FILES if "/" in name}
+FILES = LEGACY_FILES + (
+    "references/tools.md",
+    "references/strategies.md",
+    "references/case-studies.md",
+)
+LAYOUTS = {
+    frozenset(files): {str(Path(name).parent) for name in files if "/" in name}
+    for files in (LEGACY_FILES, FILES)
+}
+DIRECTORIES = LAYOUTS[frozenset(FILES)]
 
 
 class Conflict(Exception):
@@ -78,12 +87,12 @@ def load_source(source):
 
 def validate_copy(path, expected):
     hashes, directories = inventory(path)
-    if directories != DIRECTORIES:
-        raise Conflict("unexpected or missing directories in installation")
     receipt_hash = hashes.pop(RECEIPT, None)
-    if set(hashes) != set(FILES):
-        raise Conflict("unexpected or missing files in installation")
     if receipt_hash is None:
+        if directories != DIRECTORIES:
+            raise Conflict("unexpected or missing directories in installation")
+        if set(hashes) != set(FILES):
+            raise Conflict("unexpected or missing files in installation")
         if hashes != expected:
             raise Conflict("unmanaged directory differs from the complete source")
         return "adopt"
@@ -98,7 +107,7 @@ def validate_copy(path, expected):
         or receipt["schema"] != 1
         or receipt["name"] != NAME
         or not isinstance(receipt["hashes"], dict)
-        or set(receipt["hashes"]) != set(FILES)
+        or frozenset(receipt["hashes"]) not in LAYOUTS
         or any(
             not isinstance(value, str)
             or len(value) != 64
@@ -107,6 +116,11 @@ def validate_copy(path, expected):
         )
     ):
         raise Conflict("invalid or foreign installation receipt")
+    files = frozenset(receipt["hashes"])
+    if directories != LAYOUTS[files]:
+        raise Conflict("unexpected or missing directories in installation")
+    if set(hashes) != files:
+        raise Conflict("unexpected or missing files in installation")
     if hashes != receipt["hashes"]:
         raise Conflict("managed files have local changes; refusing replacement")
     return "unchanged" if hashes == expected else "update"

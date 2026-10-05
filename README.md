@@ -22,7 +22,7 @@ The default installation creates a complete physical bundle at `$HOME/.agents/sk
 python3 scripts/install.py --skills-dir "/absolute/path/to/another-harness/skills"
 ```
 
-The installer checks all targets before writing, preserves valid existing links, refuses modified or conflicting destinations, and rolls back preceding replacements after ordinary write failures. It copies only the seven explicit skill files; repository tests and development files are not installed. See [installation and portability](references/portability.md) for updates, custom roots, refresh behavior, and remote environments.
+The installer checks all targets before writing, preserves valid existing links, refuses modified or conflicting destinations, and rolls back preceding replacements after ordinary write failures. It copies only the ten explicit skill files; repository tests and development files are not installed. Unchanged managed seven-file installations upgrade safely. See [installation and portability](references/portability.md) for updates, custom roots, refresh behavior, and remote environments.
 
 ## Use it
 
@@ -51,13 +51,16 @@ The skill adapts to UI, service/database, CLI/compiler, native CPU/GPU, and data
 
 - [SKILL.md](SKILL.md): the procedure and acceptance rules.
 - [Metric guide](references/metrics.md): metric contracts, instruments, proxy validation, and workload-specific caveats.
+- [Tool guide](references/tools.md): which CPU, waiting, memory, query, load, or device artifact answers the question.
+- [Strategy guide](references/strategies.md): mechanisms, critical-path bounds, repayment, tradeoffs, and experiments.
+- [Recent cases](references/case-studies.md): nine 2025-2026 project reports with implementation links, gains, regressions, and proof boundaries.
 - [Experiment record](assets/experiment-record.md): an adaptable evidence template.
 - [Portability guide](references/portability.md): discovery, activation, installation, and cloud boundaries.
 - [Sources and caveats](references/sources.md): the article, critique, and primary technical references behind the method.
 - `agents/openai.yaml`: optional Codex picker metadata; other harnesses can ignore it.
 - `scripts/install.py`: an offline, relocatable installer.
 
-The method draws on Anthropic's performance sprint and the accompanying critique. The source guide separates reported results, technical constraints, and unproven causal explanations. It does not reproduce either source in full.
+The method draws on Anthropic's performance sprint and critique plus recent work from V8, Go, Dolt, DuckDB, rust-analyzer, vLLM, PyTorch/Diffusers, and FlashAttention. The source guide separates reported results, released/current code, technical constraints, and unproven explanations. Reported speedups are workload-specific leads, not promises for another project.
 
 ## Validate changes
 

@@ -45,6 +45,12 @@ Do not infer a library or runtime's current behavior from a familiar name. Read 
 
 Initially label a diagnostic proxy **exploratory**. Promote it to **validated for this workload** only after repeatability and an outcome comparison. Demote it when that relationship breaks or the workload changes. Keep rejected metrics and why they failed in the record when this prevents repeated mistakes.
 
+Use [tools.md](tools.md) to select the artifact for a diagnostic question. Record whether time is executing, CPU-active but stalled, runnable, blocked, transferring, or waiting on a dependency; summed parallel worker time is not the operation's wall time. Separate allocated bytes, live heap, RSS, buffer peaks, and peak temporary storage instead of calling all of them memory usage.
+
+For LLM serving, distinguish time to first token, streamed inter-token latency, average time per output token, full-request latency, output tokens/second, and SLO goodput. Fixed token distributions, arrival process, stop behavior, cache state, and quality checks are needed for a comparable result. Do not substitute one of these metrics for another or assume a throughput benchmark describes interactive latency.
+
+For compiled or preprocessed workloads, pair cold/first-use cost with warm time, lifetime/use count, recompilation/maintenance, and peak resources. A layout or compile step can repay its cost only after enough uses. For storage pruning, retain rows/bytes read and result cardinality beside query time; a lower scan count is diagnostic evidence until the full operation is checked.
+
 ## Obtain comparable measurements
 
 For timing, establish cold/warm state, repetitions, and sampling units explicitly. Warm up relevant compilation/caches when measuring steady state; retain initialization when measuring startup. Interleave baseline/candidate repetitions or otherwise control drift. Include allocation/GC and asynchronous work that belongs to the operation.
@@ -62,4 +68,3 @@ When useful metrics disagree, inspect the reason. A lower counter with worse req
 Use rough expected impact and cost, not false precision. Prioritize removable critical-path cost, frequent work, severe tails, and high-confidence causes. A phase occupying 1% of the operation cannot explain a large end-to-end speedup without another effect; investigate that mismatch.
 
 After a win, reprofile. When small changes plateau, test a distinct approach such as representation, dependency order, incremental work, or an algorithm. Retain the best verified candidate and original comparison, rather than stacking unverified edits.
-

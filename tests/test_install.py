@@ -49,6 +49,15 @@ class InstallerTests(unittest.TestCase):
     def state(self, path):
         return MOD.snapshot(path)
 
+    def legacy_copy(self, path, managed=True):
+        for name in MOD.LEGACY_FILES:
+            entry = path / name
+            entry.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(self.source / name, entry)
+        if managed:
+            receipt = {"schema": 1, "name": MOD.NAME, "hashes": MOD.inventory(path)[0]}
+            (path / MOD.RECEIPT).write_text(json.dumps(receipt) + "\n", encoding="utf-8")
+
     def test_first_global_install(self):
         code, report = self.invoke()
         self.assertEqual(code, 0, report)
@@ -135,6 +144,174 @@ class InstallerTests(unittest.TestCase):
         self.assertEqual(code, 0, report)
         self.assertEqual(self.claude.joinpath("references/metrics.md").read_text(), "new release\n")
         self.assertEqual(self.invoke("--check")[0], 0)
+
+    def test_legacy_managed_copy_upgraded(self):
+        self.legacy_copy(self.shared)
+        self.claude.parent.mkdir(parents=True)
+        self.claude.symlink_to(self.shared, target_is_directory=True)
+        code, report = self.invoke()
+        self.assertEqual(code, 0, report)
+        self.assertEqual([row["status"] for row in report["targets"]], ["updated", "linked"])
+        self.assertTrue(self.claude.is_symlink())
+        for name in MOD.FILES:
+            self.assertEqual((self.shared / name).read_bytes(), (self.source / name).read_bytes())
+        receipt = json.loads((self.shared / MOD.RECEIPT).read_text())
+        self.assertEqual(receipt["schema"], 1)
+        self.assertEqual(set(receipt["hashes"]), set(MOD.FILES))
+        self.assertEqual(self.invoke("--check")[0], 0)
+        self.assertEqual([row["status"] for row in self.invoke()[1]["targets"]],
+                         ["unchanged", "linked"])
+
+    def test_legacy_check_reports_outdated_without_changes(self):
+        self.legacy_copy(self.shared)
+        self.claude.parent.mkdir(parents=True)
+        self.claude.symlink_to(self.shared, target_is_directory=True)
+        before_shared, before_claude = self.state(self.shared), self.state(self.claude)
+        with mock.patch.object(MOD, "transact") as transact:
+            code, report = self.invoke("--check")
+        self.assertEqual(code, 1, report)
+        self.assertEqual([row["status"] for row in report["targets"]], ["outdated", "outdated"])
+        transact.assert_not_called()
+        self.assertEqual(self.state(self.shared), before_shared)
+        self.assertEqual(self.state(self.claude), before_claude)
+
+    def test_legacy_local_edit_refused(self):
+        self.legacy_copy(self.shared)
+        (self.shared / "SKILL.md").write_text("user edit\n")
+        before = self.state(self.shared)
+        code, report = self.invoke()
+        self.assertEqual(code, 1, report)
+        self.assertIn("local changes", report["targets"][0]["error"])
+        self.assertEqual(self.state(self.shared), before)
+        self.assertFalse(self.claude.parent.exists())
+
+    def test_legacy_missing_file_refused(self):
+        self.legacy_copy(self.shared)
+        (self.shared / "references/portability.md").unlink()
+        before = self.state(self.shared)
+        code, report = self.invoke()
+        self.assertEqual(code, 1, report)
+        self.assertIn("missing files", report["targets"][0]["error"])
+        self.assertEqual(self.state(self.shared), before)
+        self.assertFalse(self.claude.parent.exists())
+
+    def test_legacy_extra_file_refused(self):
+        for name in ("notes.txt", "references/tools.md"):
+            with self.subTest(name=name):
+                skills = self.root / Path(name).stem
+                path = skills / MOD.NAME
+                self.legacy_copy(path)
+                (path / name).write_text("user file\n")
+                before = self.state(path)
+                code, report = self.invoke("--skills-dir", skills)
+                self.assertEqual(code, 1, report)
+                self.assertIn("unexpected", report["targets"][0]["error"])
+                self.assertEqual(self.state(path), before)
+
+    def test_legacy_unexpected_directory_refused(self):
+        self.legacy_copy(self.shared)
+        (self.shared / "references/user experiments").mkdir()
+        before = self.state(self.shared)
+        code, report = self.invoke()
+        self.assertEqual(code, 1, report)
+        self.assertIn("directories", report["targets"][0]["error"])
+        self.assertEqual(self.state(self.shared), before)
+
+    def test_legacy_internal_symlink_refused(self):
+        self.legacy_copy(self.shared)
+        entry = self.shared / "references/portability.md"
+        entry.unlink()
+        entry.symlink_to(self.source / "references/portability.md")
+        receipt = (self.shared / MOD.RECEIPT).read_bytes()
+        code, report = self.invoke()
+        self.assertEqual(code, 1, report)
+        self.assertIn("symlink", report["targets"][0]["error"])
+        self.assertTrue(entry.is_symlink())
+        self.assertEqual((self.shared / MOD.RECEIPT).read_bytes(), receipt)
+        self.assertFalse(self.claude.parent.exists())
+
+    def test_unmanaged_legacy_copy_refused(self):
+        self.legacy_copy(self.shared, managed=False)
+        before = self.state(self.shared)
+        code, report = self.invoke()
+        self.assertEqual(code, 1, report)
+        self.assertEqual(self.state(self.shared), before)
+        self.assertFalse((self.shared / MOD.RECEIPT).exists())
+
+    def test_unrecognized_receipt_file_sets_refused(self):
+        layouts = {
+            "partial-upgrade": set(MOD.LEGACY_FILES) | {"references/tools.md"},
+            "extra-user-file": set(MOD.FILES) | {"notes.txt"},
+            "missing-current-file": set(MOD.FILES) - {"references/metrics.md"},
+        }
+        for scenario, names in layouts.items():
+            with self.subTest(scenario=scenario):
+                skills = self.root / scenario
+                path = skills / MOD.NAME
+                for name in names:
+                    entry = path / name
+                    entry.parent.mkdir(parents=True, exist_ok=True)
+                    entry.write_text("fixture " + name + "\n")
+                receipt = {"schema": 1, "name": MOD.NAME, "hashes": MOD.inventory(path)[0]}
+                (path / MOD.RECEIPT).write_text(json.dumps(receipt) + "\n")
+                before = self.state(path)
+                with mock.patch.object(MOD, "transact") as transact:
+                    code, report = self.invoke("--skills-dir", skills)
+                self.assertEqual(code, 1, report)
+                self.assertIn("invalid or foreign", report["targets"][0]["error"])
+                transact.assert_not_called()
+                self.assertEqual(self.state(path), before)
+
+    def test_mixed_current_and_legacy_global_copies_upgraded(self):
+        self.assertEqual(self.invoke("--copy")[0], 0)
+        before_claude, inode = self.state(self.claude), self.claude.stat().st_ino
+        shutil.rmtree(self.shared)
+        self.legacy_copy(self.shared)
+        code, report = self.invoke()
+        self.assertEqual(code, 0, report)
+        self.assertEqual([row["status"] for row in report["targets"]], ["updated", "unchanged"])
+        self.assertEqual(self.state(self.claude), before_claude)
+        self.assertEqual(self.claude.stat().st_ino, inode)
+        self.assertFalse(self.claude.is_symlink())
+        self.assertEqual(self.invoke("--check")[0], 0)
+
+    def test_legacy_upgrade_later_global_conflict_preserves_all_targets(self):
+        self.assertEqual(self.invoke("--copy")[0], 0)
+        shutil.rmtree(self.shared)
+        self.legacy_copy(self.shared)
+        (self.claude / "notes.txt").write_text("user file\n")
+        before_shared, before_claude = self.state(self.shared), self.state(self.claude)
+        with mock.patch.object(MOD, "transact") as transact:
+            code, report = self.invoke()
+        self.assertEqual(code, 1, report)
+        self.assertEqual([row["status"] for row in report["targets"]], ["update", "conflict"])
+        transact.assert_not_called()
+        self.assertEqual(self.state(self.shared), before_shared)
+        self.assertEqual(self.state(self.claude), before_claude)
+        self.assertEqual(list(self.home.rglob("." + MOD.NAME + "-install-*")), [])
+
+    def test_legacy_upgrade_rollback_restores_layout_and_receipts(self):
+        self.legacy_copy(self.shared)
+        self.legacy_copy(self.claude)
+        before_shared, before_claude = self.state(self.shared), self.state(self.claude)
+        receipts = {path: (path / MOD.RECEIPT).read_bytes() for path in (self.shared, self.claude)}
+        original = os.replace
+
+        def fail_later(source, destination):
+            if Path(source).name == "replacement" and Path(destination) == self.claude:
+                raise OSError("injected legacy upgrade failure")
+            return original(source, destination)
+
+        with mock.patch.object(MOD.os, "replace", side_effect=fail_later):
+            code, report = self.invoke("--copy")
+        self.assertEqual(code, 1, report)
+        self.assertIn("all replacements rolled back", report["error"])
+        self.assertEqual(self.state(self.shared), before_shared)
+        self.assertEqual(self.state(self.claude), before_claude)
+        for path, receipt in receipts.items():
+            self.assertEqual((path / MOD.RECEIPT).read_bytes(), receipt)
+            self.assertEqual(set(MOD.inventory(path)[0]), set(MOD.LEGACY_FILES) | {MOD.RECEIPT})
+        self.assertEqual(list(self.home.rglob("." + MOD.NAME + "-install-*")), [])
 
     def test_identical_unmanaged_copy_adopted(self):
         shutil.copytree(self.source, self.shared)

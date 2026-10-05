@@ -37,6 +37,10 @@ Keep one compact campaign record in the project's existing artifact location, or
 
 Read [references/metrics.md](references/metrics.md) when choosing instruments, adapting to a new runtime, or interpreting an uncertain counter. Its examples are candidates, not a checklist to collect every possible metric.
 
+Select an instrument by the question it can answer. A CPU profile cannot explain every blocked request, an allocation profile is not retained heap or RSS, and a GPU kernel counter is not a host/device timeline. Check the actual OS/device, runtime, symbols, permissions, and collection overhead. Use [references/tools.md](references/tools.md) for task-to-tool routing and interpretation limits; unavailable counters are a reason to use an accessible timer/trace and narrow the claim.
+
+Form a bottleneck model before editing: unnecessary work, algorithm cost, locality/bandwidth, allocation/GC, contention/queues, transfer/launch overhead, or compilation/startup. Identify the affected phase's critical-path share and the workload conditions where the model should fail. Low average utilization does not rule out bursts, a saturated thread, or a slow cohort.
+
 ## Qualify the benchmark before climbing
 
 Run the unchanged baseline enough times to estimate variability and to verify that the benchmark exercises the intended work. Preserve raw samples. Use stable workload seeds and equivalent environments; alternate or randomize baseline/candidate runs when drift is material.
@@ -46,6 +50,10 @@ Choose a stopping rule and a meaningful improvement threshold before evaluating 
 For a diagnostic proxy, perform a small controlled change and measure both proxy and outcome on representative inputs. Record the conditions where they move together or disagree. A correlation on one hot path is provisional evidence, not a universal contract. Retire or revise a proxy that stops tracking the outcome.
 
 Before optimization, establish the relevant behavior checks. Add missing checks for the behavior a proposed change could break, using an independent expected result or oracle. Do not weaken assertions, remove work, change input mix, or narrow the completion boundary to make the score improve. Fix an invalid harness and rebaseline both sides before interpreting its numbers.
+
+Compare profiles with equivalent work and compatible units/modes. Retain absolute cost per completed operation when a normalized view might conceal growth. Separate profiling runs from ordinary outcome measurements; trace collection, predictable runtimes, replay, and retained shape/stack information can change execution.
+
+Include costs outside the hot interval when the operation requires them. Preprocessing, compilation, cache population, and offload can move cost to startup, maintenance, memory, or another device. Evaluate repayment over the expected lifetime and separate cold/warm cases; test services at the intended arrival process with dropped work and generator capacity accounted for.
 
 ## Run the candidate loop
 
@@ -59,6 +67,10 @@ Repeat while authorized scope, useful opportunities, and the budget remain:
 6. **Reprofile.** Confirm which bottleneck remains after an accepted change. Promote that revision to the next baseline and preserve the original baseline for cumulative comparisons. Probe a different approach when a local optimum or diminishing returns makes small tweaks unproductive.
 
 Useful candidate families include removing duplicate work, changing data layout or algorithms, avoiding repeated serialization or allocation, narrowing invalidation, incremental computation, batching, reordering critical-path dependencies, and moving eligible work off a constrained thread. Caching, prefetching, parallelism, and deferral require explicit correctness and resource checks; none is automatically faster.
+
+Read [references/strategies.md](references/strategies.md) to choose among mechanisms, bound potential benefit, or escape a plateau. Use [references/case-studies.md](references/case-studies.md) for recent open-source hypotheses and counterexamples, loading only relevant cases. Distinguish a published result, released implementation, moving source branch, and local replication. Transfer the mechanism and test its assumptions; do not transfer a headline percentage.
+
+Try a broad mechanism before a large parameter sweep. Preserve losing cohorts and use representative untuned inputs or a fresh confirmation run after selecting a winner. For interacting changes, compare the integrated result and retain a separate comparison or ablation when needed to identify the cause. Approximate math and quantization need an explicit quality contract; an implementation speedup and an accuracy tradeoff are separate candidates.
 
 For independent bottlenecks, parallelize only when delegation is available and appropriate. Give each worker a narrow metric/workload, file ownership, budget, and guardrails. Separate edits or use isolated worktrees. Do not run competing timed benchmarks on the same constrained machine. Validate the integrated result because isolated improvements can interfere.
 
