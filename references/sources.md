@@ -4,6 +4,8 @@ Sources were checked on 2026-10-05. This skill generalizes their engineering met
 
 The source base extends beyond the original article and critique. Read [case-studies.md](case-studies.md) for nine 2025-2026 open-source optimization reports, implementation anchors, measured tradeoffs, and reproducibility limits; read [tools.md](tools.md) for primary tool documentation. [strategies.md](strategies.md) turns those cases into project-specific experiments. None of the published benchmarks was reproduced to create this skill.
 
+[Graphics quality and aliasing](graphics.md) adapts the historical GearVR recipe supplied with the task, checked against primary OpenGL/ES/GLSL, Unity 6000.0/HDRP 17.0, Filament, rendering-author, and XR documentation. It treats old device defaults and submission opinions as historical, corrects coverage/color/alpha terminology, and requires motion/stereo evidence before a headset-quality claim. It includes established filtering methods and the 2025 OpenXR development-validation report; this is guidance research, not a new rendering benchmark or a reproduced GearVR result.
+
 ## Article
 
 [Anthropic's performance sprint](https://claude.dev/blog/how-we-made-claude-ai-faster/) describes discovering bottlenecks, building measurements, validating improvements, retaining regression guards, and using engineers to steer tradeoffs. Its speedup claim concerns selected app journeys at p75. It is not evidence for faster model inference, universal speedups, or autonomous change approval.

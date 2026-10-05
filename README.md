@@ -22,7 +22,7 @@ The default installation creates a complete physical bundle at `$HOME/.agents/sk
 python3 scripts/install.py --skills-dir "/absolute/path/to/another-harness/skills"
 ```
 
-The installer checks all targets before writing, preserves valid existing links, refuses modified or conflicting destinations, and rolls back preceding replacements after ordinary write failures. It copies only the ten explicit skill files; repository tests and development files are not installed. Unchanged managed seven-file installations upgrade safely. See [installation and portability](references/portability.md) for updates, custom roots, refresh behavior, and remote environments.
+The installer checks all targets before writing, preserves valid existing links, refuses modified or conflicting destinations, and rolls back preceding replacements after ordinary write failures. It copies only the eleven explicit skill files; repository tests and development files are not installed. Unchanged managed seven-file and ten-file installations upgrade safely. See [installation and portability](references/portability.md) for updates, custom roots, refresh behavior, and remote environments.
 
 ## Use it
 
@@ -54,6 +54,7 @@ The skill adapts to UI, service/database, CLI/compiler, native CPU/GPU, and data
 - [Tool guide](references/tools.md): which CPU, waiting, memory, query, load, or device artifact answers the question.
 - [Strategy guide](references/strategies.md): mechanisms, critical-path bounds, repayment, tradeoffs, and experiments.
 - [Recent cases](references/case-studies.md): nine 2025-2026 project reports with implementation links, gains, regressions, and proof boundaries.
+- [Graphics quality](references/graphics.md): motion/stereo quality contracts, corrected aliasing advice, versioned Unity controls, and capture/runtime proof limits.
 - [Experiment record](assets/experiment-record.md): an adaptable evidence template.
 - [Portability guide](references/portability.md): discovery, activation, installation, and cloud boundaries.
 - [Sources and caveats](references/sources.md): the article, critique, and primary technical references behind the method.

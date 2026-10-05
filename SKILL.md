@@ -39,6 +39,8 @@ Read [references/metrics.md](references/metrics.md) when choosing instruments, a
 
 Select an instrument by the question it can answer. A CPU profile cannot explain every blocked request, an allocation profile is not retained heap or RSS, and a GPU kernel counter is not a host/device timeline. Check the actual OS/device, runtime, symbols, permissions, and collection overhead. Use [references/tools.md](references/tools.md) for task-to-tool routing and interpretation limits; unavailable counters are a reason to use an accessible timer/trace and narrow the claim.
 
+For rendering or XR, use [references/graphics.md](references/graphics.md) to establish a visual-quality contract and separate coverage, texture/shader, and temporal aliasing. A faster or smoother-looking still image cannot establish preserved detail, stereo consistency, or stability under motion; keep those requirements beside frame/resource budgets.
+
 Form a bottleneck model before editing: unnecessary work, algorithm cost, locality/bandwidth, allocation/GC, contention/queues, transfer/launch overhead, or compilation/startup. Identify the affected phase's critical-path share and the workload conditions where the model should fail. Low average utilization does not rule out bursts, a saturated thread, or a slow cohort.
 
 ## Qualify the benchmark before climbing

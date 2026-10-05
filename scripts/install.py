@@ -23,14 +23,15 @@ LEGACY_FILES = (
     "references/portability.md",
     "scripts/install.py",
 )
-FILES = LEGACY_FILES + (
+RESEARCH_FILES = LEGACY_FILES + (
     "references/tools.md",
     "references/strategies.md",
     "references/case-studies.md",
 )
+FILES = RESEARCH_FILES + ("references/graphics.md",)
 LAYOUTS = {
     frozenset(files): {str(Path(name).parent) for name in files if "/" in name}
-    for files in (LEGACY_FILES, FILES)
+    for files in (LEGACY_FILES, RESEARCH_FILES, FILES)
 }
 DIRECTORIES = LAYOUTS[frozenset(FILES)]
 
